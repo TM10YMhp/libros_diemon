@@ -4,10 +4,10 @@ import dynamic from "next/dynamic";
 import Loading from "./loading";
 
 import { getBooks } from "@/api";
+import { page_metadata } from "@/config";
+import { useUserState, useUserUpdater } from "@/context";
 import { Book } from "@/types";
-import { useEffect, useMemo, useState } from "react";
-import { page_metadata } from "./config";
-import { metadata } from "./layout";
+import { useEffect, useState } from "react";
 
 interface Props {
   books: Book[];
@@ -15,6 +15,9 @@ interface Props {
 }
 
 function HomePageClient({ books, genres }: Props) {
+  const { user } = useUserState();
+  const { addPoints } = useUserUpdater();
+
   const [matches, setMatches] = useState<Book[]>([]);
   const [genre, setGenre] = useState("");
 
@@ -70,8 +73,12 @@ function HomePageClient({ books, genres }: Props) {
 
   return (
     <article className="grid gap-6">
-      <nav>
-        <select value={genre} onChange={(e) => setGenre(e.target.value)}>
+      <nav className="flex flex-row gap-6 items-center">
+        <select
+          className="border rounded-md h-full"
+          value={genre}
+          onChange={(e) => setGenre(e.target.value)}
+        >
           <option value="">Todos</option>
           {genres.map((genre) => (
             <option key={genre} value={genre}>
@@ -79,6 +86,21 @@ function HomePageClient({ books, genres }: Props) {
             </option>
           ))}
         </select>
+        <div
+          className="flex flex-row border rounded-full p-1 gap-1 cursor-pointer select-none"
+          onClick={() => addPoints(Math.floor(Math.random() * 30) * 10 + 100)}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://cryptologos.cc/logos/dogebonk-dobo-logo.svg?v=040"
+            alt="pepecoin"
+            width={25}
+          />
+          <p className="pr-2">{user?.points ?? "woof..."}</p>
+        </div>
+        <p className="pr-2">
+          mostrando {matches.length} de {books.length} libros
+        </p>
       </nav>
       <ul className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-4">
         {matches.map((book) => (

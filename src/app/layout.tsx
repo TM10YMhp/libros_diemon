@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
-import "./globals.css";
-import { page_metadata } from "./config";
+import "../globals.css";
+import { page_metadata } from "@/config";
+import { Providers } from "@/providers";
 
 export const metadata: Metadata = page_metadata;
 
@@ -17,7 +18,9 @@ export default function RootLayout({
           <nav className="flex items-center text-2xl">
             {String(page_metadata.title)}
           </nav>
-          <section>{children}</section>
+          <section>
+            <Providers>{children}</Providers>
+          </section>
         </main>
       </body>
     </html>

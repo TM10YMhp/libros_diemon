@@ -11,3 +11,10 @@ export interface Book {
     otherBooks: string[];
   };
 }
+
+export interface User {
+  id: string;
+  name: string;
+  points: number;
+  // redeemHistory: Product[]
+}
