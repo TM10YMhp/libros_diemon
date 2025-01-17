@@ -2,8 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* :root { */
+/*   background-color: Canvas; */
+/*   color: CanvasText; */
+/*   color-scheme: dark light; */
+/* } */
+
 :root {
-  background-color: Canvas;
-  color: CanvasText;
-  color-scheme: dark light;
+  @apply bg-stone-900 text-white;
 }

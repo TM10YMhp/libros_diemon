@@ -71,11 +71,35 @@ function HomePageClient({ books, genres }: Props) {
     return () => window.removeEventListener("storage", getReadList);
   }, []);
 
+  const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    addPoints(Math.floor(Math.random() * 30) * 10 + 100);
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const originX = (rect.x + 0.5 * rect.width) / width;
+    const originY = (rect.y + 0.5 * rect.height) / height;
+
+    import("canvas-confetti").then(({ default: confetti }) => {
+      confetti({
+        particleCount: 8,
+        startVelocity: 10,
+        gravity: 0.5,
+        ticks: 50,
+        zIndex: 10,
+        origin: {
+          x: originX,
+          y: originY,
+        },
+      });
+    });
+  };
+
   return (
     <article className="grid gap-6">
       <nav className="flex flex-row gap-6 items-center">
         <select
-          className="border rounded-md h-full"
+          className="border rounded-md h-full bg-stone-900"
           value={genre}
           onChange={(e) => setGenre(e.target.value)}
         >
@@ -87,8 +111,8 @@ function HomePageClient({ books, genres }: Props) {
           ))}
         </select>
         <div
-          className="flex flex-row border rounded-full p-1 gap-1 cursor-pointer select-none"
-          onClick={() => addPoints(Math.floor(Math.random() * 30) * 10 + 100)}
+          className="flex flex-row border rounded-full p-1 gap-1 cursor-pointer select-none z-20 bg-stone-900"
+          onClick={handleClick}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
