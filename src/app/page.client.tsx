@@ -93,7 +93,7 @@ function HomePageClient({ books, genres }: Props) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="https://cryptologos.cc/logos/dogebonk-dobo-logo.svg?v=040"
-            alt="pepecoin"
+            alt="memecoin"
             width={25}
           />
           <p className="pr-2">{user?.points ?? "woof..."}</p>
