@@ -16,5 +16,6 @@ export interface User {
   id: string;
   name: string;
   points: number;
-  // redeemHistory: Product[]
 }
+
+export type Sort = "HighestPrice" | "LowestPrice" | "MostRecent";

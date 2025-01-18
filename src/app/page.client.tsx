@@ -4,10 +4,11 @@ import dynamic from "next/dynamic";
 import Loading from "./loading";
 
 import { getBooks } from "@/api";
-import { page_metadata } from "@/config";
 import { useUserState, useUserUpdater } from "@/context";
-import { Book } from "@/types";
-import { cx, debounce, throttle } from "@/utils";
+import { useDynamicTitle, useScrollPosition } from "@/hooks";
+import { Book, Sort } from "@/types";
+import { cx } from "@/utils";
+import confetti from "canvas-confetti";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -15,37 +16,18 @@ interface Props {
   genres: string[];
 }
 
+/* eslint-disable @next/next/no-img-element */
 function HomePageClient({ books, genres }: Props) {
-  const [scrollPosition, setScrollPosition] = useState(0);
+  const scrollPosition = useScrollPosition();
 
-  const handleScroll = () => {
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const scrollHeight =
-      document.documentElement.scrollHeight -
-      document.documentElement.clientHeight;
-    const scrollPercentage = (scrollTop / scrollHeight) * 100;
-    setScrollPosition(Math.round(scrollPercentage));
-  };
-
-  useEffect(() => {
-    const throttled = throttle(handleScroll, 150);
-    const debounced = debounce(handleScroll, 50);
-    const optimizedHandleScroll = () => {
-      throttled();
-      debounced();
-    };
-
-    window.addEventListener("scroll", optimizedHandleScroll, {
-      passive: true,
-    });
-    return () => window.removeEventListener("scroll", optimizedHandleScroll);
-  }, []);
+  useDynamicTitle("¡No te vayas😭! 🗣");
 
   const { user } = useUserState();
   const { addPoints, redeem } = useUserUpdater();
 
   const [matches, setMatches] = useState<Book[]>([]);
   const [genre, setGenre] = useState("");
+  const [sort, setSort] = useState<Sort>("MostRecent");
 
   const [readList, setReadList] = useState<Set<Book["ISBN"]>>(new Set());
   const handleBookClick = (book: Book["ISBN"]) => {
@@ -66,23 +48,10 @@ function HomePageClient({ books, genres }: Props) {
   };
 
   useEffect(() => {
-    getBooks(genre).then((books) => {
+    getBooks({ genre, sort }).then((books) => {
       setMatches(books);
     });
-  }, [genre]);
-
-  useEffect(() => {
-    const defaultTitle = String(page_metadata.title) || "";
-    const awayTitle = "¡No te vayas😭! 🗣";
-
-    window.addEventListener("load", () => {
-      document.title = defaultTitle;
-    });
-
-    window.addEventListener("visibilitychange", () => {
-      document.title = document.hidden ? awayTitle : defaultTitle;
-    });
-  }, []);
+  }, [genre, sort]);
 
   useEffect(() => {
     function getReadList() {
@@ -97,29 +66,38 @@ function HomePageClient({ books, genres }: Props) {
     return () => window.removeEventListener("storage", getReadList);
   }, []);
 
-  const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    addPoints(Math.floor(Math.random() * 30) * 10 + 100);
-
-    const rect = event.currentTarget.getBoundingClientRect();
+  const getOrigins = (element: Element) => {
+    const rect = element.getBoundingClientRect();
     const width = window.innerWidth;
     const height = window.innerHeight;
     const originX = (rect.x + 0.5 * rect.width) / width;
     const originY = (rect.y + 0.5 * rect.height) / height;
 
+    return { x: originX, y: originY };
+  };
+
+  const launchConfetti = (element: Element, options: confetti.Options) => {
+    const { x, y } = getOrigins(element);
+
     import("canvas-confetti").then(({ default: confetti }) => {
       confetti({
-        shapes: ["star"],
-        colors: ["FFE400", "FFBD00", "E89400", "FFCA6C", "FDFFB8"],
-        particleCount: 5,
-        startVelocity: 10,
-        gravity: 0.7,
-        ticks: 50,
         zIndex: 10,
-        origin: {
-          x: originX,
-          y: originY,
-        },
+        origin: { x, y },
+        ...options,
       });
+    });
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    addPoints(Math.floor(Math.random() * 30) * 10 + 100);
+
+    launchConfetti(event.currentTarget, {
+      shapes: ["circle"],
+      colors: ["FFE400", "FFBD00", "E89400", "FFCA6C", "FDFFB8"],
+      particleCount: 5,
+      startVelocity: 10,
+      gravity: 0.7,
+      ticks: 50,
     });
   };
 
@@ -136,25 +114,12 @@ function HomePageClient({ books, genres }: Props) {
 
     redeem(book);
 
-    const rect = event.currentTarget.getBoundingClientRect();
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const originX = (rect.x + 0.5 * rect.width) / width;
-    const originY = (rect.y + 0.5 * rect.height) / height;
-
-    import("canvas-confetti").then(({ default: confetti }) => {
-      confetti({
-        colors: ["#bb0000", "#ffffff"],
-        particleCount: 8,
-        startVelocity: 15,
-        gravity: 2,
-        ticks: 40,
-        zIndex: 10,
-        origin: {
-          x: originX,
-          y: originY,
-        },
-      });
+    launchConfetti(event.currentTarget, {
+      colors: ["#bb0000", "#ffffff"],
+      particleCount: 8,
+      startVelocity: 15,
+      gravity: 2,
+      ticks: 40,
     });
   };
 
@@ -187,7 +152,6 @@ function HomePageClient({ books, genres }: Props) {
           )}
           onClick={handleClick}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="https://cryptologos.cc/logos/dogebonk-dobo-logo.svg?v=040"
             alt="memecoin"
@@ -198,6 +162,15 @@ function HomePageClient({ books, genres }: Props) {
         <p className="pr-2">
           mostrando {matches.length} de {books.length} libros
         </p>
+        <button className="border px-1" onClick={() => setSort("HighestPrice")}>
+          HighestPrice
+        </button>
+        <button className="border px-1" onClick={() => setSort("LowestPrice")}>
+          LowestPrice
+        </button>
+        <button className="border px-1" onClick={() => setSort("MostRecent")}>
+          MostRecent
+        </button>
       </nav>
       <ul className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-4">
         {matches.map((book) => (
@@ -209,15 +182,19 @@ function HomePageClient({ books, genres }: Props) {
             <button
               className={cx(
                 "absolute px-1 rounded-br-lg bg-stone-900 border select-none",
-                "hover:bg-stone-600",
+                "hover:bg-stone-600 flex flex-row gap-1 items-center",
                 book.pages <= Number(user?.points) ||
-                  "bg-red-900 hover:bg-red-600",
+                  "!bg-red-900 hover:!bg-red-600",
               )}
               onClick={(e) => handleRedeem(e, book)}
             >
+              <img
+                src="https://cryptologos.cc/logos/dogebonk-dobo-logo.svg?v=040"
+                alt="memecoin"
+                width={15}
+              />
               {book.pages}
             </button>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               className="aspect-[9/14] object-cover"
               loading="lazy"

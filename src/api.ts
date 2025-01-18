@@ -1,4 +1,4 @@
-import { Book, User } from "./types";
+import { Book, Sort, User } from "./types";
 
 export const getUser = async (): Promise<User> => {
   const user = {
@@ -13,14 +13,35 @@ export const getUser = async (): Promise<User> => {
   });
 };
 
-export const getBooks = async (genre?: string): Promise<Book[]> => {
+export const getBooks = async (
+  criteria: { genre?: string; sort?: Sort } = {},
+): Promise<Book[]> => {
   // simular fetch con lazy import
   const data = await import("@/data/books.json");
   const books = data.library.map((x) => x.book);
 
-  if (!genre) return books;
+  const { genre, sort } = criteria;
 
-  const matches = books.filter((x) => x.genre === genre);
+  const applySort = (books: Book[]) => {
+    switch (sort) {
+      case "HighestPrice":
+        return [...books].sort((a, b) => b.pages - a.pages);
+
+      case "LowestPrice":
+        return [...books].sort((a, b) => a.pages - b.pages);
+
+      case "MostRecent":
+      default:
+        return books;
+    }
+  };
+
+  const applyGenre = (books: Book[]) => {
+    if (!genre) return books;
+    return books.filter((x) => x.genre === genre);
+  };
+
+  const matches = applySort(applyGenre(books));
   return matches;
 };
 
