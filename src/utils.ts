@@ -31,3 +31,25 @@ export const throttle = (
     }
   };
 };
+
+const getOrigins = (element: Element) => {
+  const rect = element.getBoundingClientRect();
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const originX = (rect.x + 0.5 * rect.width) / width;
+  const originY = (rect.y + 0.5 * rect.height) / height;
+
+  return { x: originX, y: originY };
+};
+
+export const launchConfetti = (element: Element, options: confetti.Options) => {
+  const { x, y } = getOrigins(element);
+
+  import("canvas-confetti").then(({ default: confetti }) => {
+    confetti({
+      zIndex: 10,
+      origin: { x, y },
+      ...options,
+    });
+  });
+};

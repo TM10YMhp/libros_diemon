@@ -18,4 +18,8 @@ export interface User {
   points: number;
 }
 
-export type Sort = "HighestPrice" | "LowestPrice" | "MostRecent";
+export enum Sort {
+  HighestPrice = "Alto precio",
+  LowestPrice = "Bajo precio",
+  MostRecent = "Más reciente",
+}

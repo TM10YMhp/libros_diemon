@@ -1,0 +1,43 @@
+"use client";
+import { page_metadata } from "@/config";
+import { useUserState, useUserUpdater } from "@/context";
+import { cx, launchConfetti } from "@/utils";
+
+/* eslint-disable @next/next/no-img-element */
+export default function Navbar() {
+  const { user } = useUserState();
+  const { addPoints } = useUserUpdater();
+
+  const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    addPoints(Math.floor(Math.random() * 30) * 10 + 100);
+
+    launchConfetti(event.currentTarget, {
+      shapes: ["circle"],
+      colors: ["FFE400", "FFBD00", "E89400", "FFCA6C", "FDFFB8"],
+      particleCount: 5,
+      startVelocity: 10,
+      gravity: 0.7,
+      ticks: 50,
+    });
+  };
+
+  return (
+    <nav className="flex items-center gap-8">
+      <p className="text-2xl">{String(page_metadata.title)}</p>
+      <div
+        className={cx(
+          "cursor-pointer select-none bg-stone-900 p-1",
+          "border rounded-full flex flex-row gap-1 z-20",
+        )}
+        onClick={handleClick}
+      >
+        <img
+          src="https://cryptologos.cc/logos/dogebonk-dobo-logo.svg?v=040"
+          alt="memecoin"
+          width={25}
+        />
+        <p className="pr-2">{user?.points ?? "woof..."}</p>
+      </div>
+    </nav>
+  );
+}

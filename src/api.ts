@@ -2,10 +2,9 @@ import { Book, Sort, User } from "./types";
 
 export const getUser = async (): Promise<User> => {
   const user = {
-    id: "5a03638052fd231590d04eb5",
-    name: "John Kite",
-    points: 1000,
-    redeemHistory: [],
+    id: "5a036",
+    name: "Diemon Josh",
+    points: 1500,
   };
 
   return await new Promise((resolve) => {
@@ -24,13 +23,13 @@ export const getBooks = async (
 
   const applySort = (books: Book[]) => {
     switch (sort) {
-      case "HighestPrice":
+      case Sort.HighestPrice:
         return [...books].sort((a, b) => b.pages - a.pages);
 
-      case "LowestPrice":
+      case Sort.LowestPrice:
         return [...books].sort((a, b) => a.pages - b.pages);
 
-      case "MostRecent":
+      case Sort.MostRecent:
       default:
         return books;
     }

@@ -10,13 +10,13 @@ import { Book, User } from "./types";
 
 // https://kentcdodds.com/blog/how-to-optimize-your-context-value
 
-const UserStateContext = createContext<User | null>(null);
+const UserStateContext = createContext<User | undefined | null>(null);
 const UserUpdaterContext = createContext<
-  React.Dispatch<React.SetStateAction<User | null>>
+  React.Dispatch<React.SetStateAction<User | undefined>>
 >(() => null);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User>();
 
   useEffect(() => {
     getUser().then((user) => {
@@ -35,7 +35,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
 export function useUserState() {
   const user = useContext(UserStateContext);
-  if (user === undefined) {
+  if (user === null) {
     throw new Error("useUserState must be used within a UserProvider");
   }
   return { user };

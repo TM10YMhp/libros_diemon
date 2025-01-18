@@ -7,8 +7,7 @@ import { getBooks } from "@/api";
 import { useUserState, useUserUpdater } from "@/context";
 import { useDynamicTitle, useScrollPosition } from "@/hooks";
 import { Book, Sort } from "@/types";
-import { cx } from "@/utils";
-import confetti from "canvas-confetti";
+import { cx, launchConfetti } from "@/utils";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -23,11 +22,11 @@ function HomePageClient({ books, genres }: Props) {
   useDynamicTitle("¡No te vayas😭! 🗣");
 
   const { user } = useUserState();
-  const { addPoints, redeem } = useUserUpdater();
+  const { redeem } = useUserUpdater();
 
   const [matches, setMatches] = useState<Book[]>([]);
   const [genre, setGenre] = useState("");
-  const [sort, setSort] = useState<Sort>("MostRecent");
+  const [sort, setSort] = useState<Sort>(Sort.MostRecent);
 
   const [readList, setReadList] = useState<Set<Book["ISBN"]>>(new Set());
   const handleBookClick = (book: Book["ISBN"]) => {
@@ -66,41 +65,6 @@ function HomePageClient({ books, genres }: Props) {
     return () => window.removeEventListener("storage", getReadList);
   }, []);
 
-  const getOrigins = (element: Element) => {
-    const rect = element.getBoundingClientRect();
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const originX = (rect.x + 0.5 * rect.width) / width;
-    const originY = (rect.y + 0.5 * rect.height) / height;
-
-    return { x: originX, y: originY };
-  };
-
-  const launchConfetti = (element: Element, options: confetti.Options) => {
-    const { x, y } = getOrigins(element);
-
-    import("canvas-confetti").then(({ default: confetti }) => {
-      confetti({
-        zIndex: 10,
-        origin: { x, y },
-        ...options,
-      });
-    });
-  };
-
-  const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    addPoints(Math.floor(Math.random() * 30) * 10 + 100);
-
-    launchConfetti(event.currentTarget, {
-      shapes: ["circle"],
-      colors: ["FFE400", "FFBD00", "E89400", "FFCA6C", "FDFFB8"],
-      particleCount: 5,
-      startVelocity: 10,
-      gravity: 0.7,
-      ticks: 50,
-    });
-  };
-
   const handleRedeem = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     book: Book,
@@ -124,54 +88,49 @@ function HomePageClient({ books, genres }: Props) {
   };
 
   return (
-    <article className="grid gap-6">
+    <article className="grid gap-4">
       <div
-        className="fixed h-1 top-0 left-0 bg-yellow-500"
-        style={{
-          width: `${scrollPosition}%`,
-          transition: "width 0.2s ease-out",
-        }}
+        className={cx(
+          "fixed h-1 top-0 left-0 bg-yellow-600 z-50",
+          "transition-[width] duration-200 ease-out",
+        )}
+        style={{ width: `${scrollPosition}%` }}
       />
-      <nav className="flex flex-row gap-6 items-center">
-        <select
-          className="border rounded-md h-full bg-stone-900"
-          value={genre}
-          onChange={(e) => setGenre(e.target.value)}
-        >
-          <option value="">Todos</option>
-          {genres.map((genre) => (
-            <option key={genre} value={genre}>
-              {genre}
-            </option>
-          ))}
-        </select>
-        <div
-          className={cx(
-            "cursor-pointer select-none bg-stone-900 p-1",
-            "border rounded-full flex flex-row gap-1 z-20",
-          )}
-          onClick={handleClick}
-        >
-          <img
-            src="https://cryptologos.cc/logos/dogebonk-dobo-logo.svg?v=040"
-            alt="memecoin"
-            width={25}
-          />
-          <p className="pr-2">{user?.points ?? "woof..."}</p>
+      <nav className="flex flex-wrap gap-y-2 gap-x-6">
+        <div className="flex flex-row gap-2">
+          <p>filtrar por genero:</p>
+          <select
+            className="border rounded-md h-full bg-stone-900 w-32"
+            value={genre}
+            onChange={(e) => setGenre(e.target.value)}
+          >
+            <option value="">Todos</option>
+            {genres.map((genre) => (
+              <option key={genre} value={genre}>
+                {genre}
+              </option>
+            ))}
+          </select>
         </div>
-        <p className="pr-2">
-          mostrando {matches.length} de {books.length} libros
-        </p>
-        <button className="border px-1" onClick={() => setSort("HighestPrice")}>
-          HighestPrice
-        </button>
-        <button className="border px-1" onClick={() => setSort("LowestPrice")}>
-          LowestPrice
-        </button>
-        <button className="border px-1" onClick={() => setSort("MostRecent")}>
-          MostRecent
-        </button>
+        <div className="flex flex-row gap-2">
+          <p>ordenar:</p>
+
+          <select
+            className="border rounded-md h-full bg-stone-900 w-32"
+            value={sort}
+            onChange={(e) => setSort(e.target.value as Sort)}
+          >
+            {Object.values(Sort).map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </div>
       </nav>
+      <p>
+        mostrando {matches.length} de {books.length} libros
+      </p>
       <ul className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-4">
         {matches.map((book) => (
           <li

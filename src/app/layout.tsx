@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import "../globals.css";
 import { page_metadata } from "@/config";
 import { Providers } from "@/providers";
+import { cx } from "@/utils";
+import Navbar from "./_components/Navbar";
 
 export const metadata: Metadata = page_metadata;
 
@@ -14,13 +16,16 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
-        <main className="px-4 m-auto max-w-screen-lg grid min-h-screen grid-rows-[60px,1fr,60px] gap-4">
-          <nav className="flex items-center text-2xl">
-            {String(page_metadata.title)}
-          </nav>
-          <section>
-            <Providers>{children}</Providers>
-          </section>
+        <main
+          className={cx(
+            "grid min-h-screen grid-rows-[60px,1fr,60px] gap-2",
+            "px-4 m-auto max-w-screen-lg",
+          )}
+        >
+          <Providers>
+            <Navbar />
+            <section>{children}</section>
+          </Providers>
         </main>
       </body>
     </html>
