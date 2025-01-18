@@ -7,6 +7,7 @@ import { getBooks } from "@/api";
 import { page_metadata } from "@/config";
 import { useUserState, useUserUpdater } from "@/context";
 import { Book } from "@/types";
+import { cx, debounce, throttle } from "@/utils";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -15,6 +16,31 @@ interface Props {
 }
 
 function HomePageClient({ books, genres }: Props) {
+  const [scrollPosition, setScrollPosition] = useState(0);
+
+  const handleScroll = () => {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const scrollHeight =
+      document.documentElement.scrollHeight -
+      document.documentElement.clientHeight;
+    const scrollPercentage = (scrollTop / scrollHeight) * 100;
+    setScrollPosition(Math.round(scrollPercentage));
+  };
+
+  useEffect(() => {
+    const throttled = throttle(handleScroll, 150);
+    const debounced = debounce(handleScroll, 50);
+    const optimizedHandleScroll = () => {
+      throttled();
+      debounced();
+    };
+
+    window.addEventListener("scroll", optimizedHandleScroll, {
+      passive: true,
+    });
+    return () => window.removeEventListener("scroll", optimizedHandleScroll);
+  }, []);
+
   const { user } = useUserState();
   const { addPoints } = useUserUpdater();
 
@@ -84,7 +110,7 @@ function HomePageClient({ books, genres }: Props) {
       confetti({
         particleCount: 8,
         startVelocity: 10,
-        gravity: 0.5,
+        gravity: 0.7,
         ticks: 50,
         zIndex: 10,
         origin: {
@@ -97,6 +123,13 @@ function HomePageClient({ books, genres }: Props) {
 
   return (
     <article className="grid gap-6">
+      <div
+        className="fixed h-1 top-0 left-0 bg-yellow-500"
+        style={{
+          width: `${scrollPosition}%`,
+          transition: "width 0.2s ease-out",
+        }}
+      />
       <nav className="flex flex-row gap-6 items-center">
         <select
           className="border rounded-md h-full bg-stone-900"
@@ -111,7 +144,10 @@ function HomePageClient({ books, genres }: Props) {
           ))}
         </select>
         <div
-          className="flex flex-row border rounded-full p-1 gap-1 cursor-pointer select-none z-20 bg-stone-900"
+          className={cx(
+            "cursor-pointer select-none bg-stone-900 p-1",
+            "border rounded-full flex flex-row gap-1 z-20",
+          )}
           onClick={handleClick}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
