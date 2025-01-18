@@ -1,5 +1,4 @@
 import { getBooks, getGenres } from "@/api";
-import { Book } from "@/types";
 import HomeClientPage from "./page.client";
 
 export default async function HomePage() {
