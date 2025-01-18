@@ -42,7 +42,7 @@ function HomePageClient({ books, genres }: Props) {
   }, []);
 
   const { user } = useUserState();
-  const { addPoints } = useUserUpdater();
+  const { addPoints, redeem } = useUserUpdater();
 
   const [matches, setMatches] = useState<Book[]>([]);
   const [genre, setGenre] = useState("");
@@ -108,10 +108,47 @@ function HomePageClient({ books, genres }: Props) {
 
     import("canvas-confetti").then(({ default: confetti }) => {
       confetti({
-        particleCount: 8,
+        shapes: ["star"],
+        colors: ["FFE400", "FFBD00", "E89400", "FFCA6C", "FDFFB8"],
+        particleCount: 5,
         startVelocity: 10,
         gravity: 0.7,
         ticks: 50,
+        zIndex: 10,
+        origin: {
+          x: originX,
+          y: originY,
+        },
+      });
+    });
+  };
+
+  const handleRedeem = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    book: Book,
+  ) => {
+    event.stopPropagation();
+
+    if (!user) return;
+
+    const canBuy = book.pages <= user.points;
+    if (!canBuy) return;
+
+    redeem(book);
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const originX = (rect.x + 0.5 * rect.width) / width;
+    const originY = (rect.y + 0.5 * rect.height) / height;
+
+    import("canvas-confetti").then(({ default: confetti }) => {
+      confetti({
+        colors: ["#bb0000", "#ffffff"],
+        particleCount: 8,
+        startVelocity: 15,
+        gravity: 2,
+        ticks: 40,
         zIndex: 10,
         origin: {
           x: originX,
@@ -169,6 +206,17 @@ function HomePageClient({ books, genres }: Props) {
             className="grid gap-2"
             onClick={() => handleBookClick(book.ISBN)}
           >
+            <button
+              className={cx(
+                "absolute px-1 rounded-br-lg bg-stone-900 border select-none",
+                "hover:bg-stone-600",
+                book.pages <= Number(user?.points) ||
+                  "bg-red-900 hover:bg-red-600",
+              )}
+              onClick={(e) => handleRedeem(e, book)}
+            >
+              {book.pages}
+            </button>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               className="aspect-[9/14] object-cover"

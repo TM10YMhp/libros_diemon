@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { addPoints, getUser, redeem } from "./api";
 import { Book, User } from "./types";
 
@@ -42,23 +48,19 @@ export function useUserUpdater() {
     throw new Error("useUserUpdater must be used within a UserProvider");
   }
 
-  async function handleRedeem(book: Book) {
-    return redeem(book).then(() => {
-      setUser((user) => {
-        if (!user) return user;
-        return { ...user, points: user.points - book.pages };
-      });
+  const handleRedeem = useCallback((book: Book) => {
+    redeem(book).then(() => {
+      setUser((user) => user && { ...user, points: user.points - book.pages });
     });
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  async function handleAddPoints(amount: number) {
-    return addPoints(amount).then(() => {
-      setUser((user) => {
-        if (!user) return user;
-        return { ...user, points: user.points + amount };
-      });
+  const handleAddPoints = useCallback((amount: number) => {
+    addPoints(amount).then(() => {
+      setUser((user) => user && { ...user, points: user.points + amount });
     });
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     addPoints: handleAddPoints,
