@@ -5,9 +5,9 @@ import Loading from "./loading";
 
 import { getBooks } from "@/api";
 import { useUserState, useUserUpdater } from "@/context";
-import { useCartUpdater } from "@/features/cart";
+import { useCartUpdater } from "@/features/cart/context";
 import { Drawer } from "@/features/ui/components/Drawer";
-import { useDynamicTitle, useScrollPosition } from "@/hooks";
+import { useDynamicTitle, useReadList, useScrollPosition } from "@/hooks";
 import { Book, Sort } from "@/types";
 import { cx, launchConfetti } from "@/utils";
 import { useEffect, useState } from "react";
@@ -25,12 +25,14 @@ type Props = {
 export function HomePageClient({ books, genres }: Props) {
   const scrollPosition = useScrollPosition();
 
-  useDynamicTitle("¡No te vayas😭! 🗣");
-
   const { user } = useUserState();
   const { redeem } = useUserUpdater();
 
   const { addItem } = useCartUpdater();
+
+  const { readList, addBookToReadList } = useReadList();
+
+  useDynamicTitle("¡No te vayas😭! 🗣");
 
   const [matches, setMatches] = useState<Book[]>([]);
   const [genre, setGenre] = useState("");
@@ -41,37 +43,6 @@ export function HomePageClient({ books, genres }: Props) {
       setMatches(books);
     });
   }, [genre, sort]);
-
-  const [readList, setReadList] = useState<Set<Book["ISBN"]>>(new Set());
-  const handleBookClick = (book: Book["ISBN"]) => {
-    // const draft = readList.includes(book)
-    //   ? readList.filter((x) => x !== book)
-    //   : readList.concat(book)
-
-    const draft = structuredClone(readList);
-    if (draft.has(book)) {
-      draft.delete(book);
-    } else {
-      draft.add(book);
-    }
-
-    setReadList(draft);
-
-    localStorage.setItem("readList", JSON.stringify(Array.from(draft)));
-  };
-
-  useEffect(() => {
-    function getReadList() {
-      const readList = JSON.parse(localStorage.getItem("readList") ?? "[]");
-      setReadList(new Set(readList));
-    }
-
-    getReadList();
-
-    window.addEventListener("storage", getReadList);
-
-    return () => window.removeEventListener("storage", getReadList);
-  }, []);
 
   const handleRedeem = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -153,7 +124,7 @@ export function HomePageClient({ books, genres }: Props) {
           <li
             key={book.ISBN}
             className="grid gap-2"
-            onClick={() => handleBookClick(book.ISBN)}
+            onClick={() => addBookToReadList(book.ISBN)}
           >
             <button
               className={cx(

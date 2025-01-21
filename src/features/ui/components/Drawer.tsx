@@ -1,6 +1,6 @@
 "use client";
 
-import { useCartState, useCartUpdater } from "@/features/cart";
+import { useCartState, useCartUpdater } from "@/features/cart/context";
 
 /* eslint-disable @next/next/no-img-element */
 
