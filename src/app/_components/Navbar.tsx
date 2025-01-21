@@ -9,7 +9,7 @@ export default function Navbar() {
   const { addPoints } = useUserUpdater();
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    addPoints(Math.floor(Math.random() * 30) * 10 + 100);
+    addPoints(Math.ceil(Math.random() * 5) * 100);
 
     launchConfetti(event.currentTarget, {
       shapes: ["circle"],

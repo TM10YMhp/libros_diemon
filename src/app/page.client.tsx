@@ -28,6 +28,12 @@ function HomePageClient({ books, genres }: Props) {
   const [genre, setGenre] = useState("");
   const [sort, setSort] = useState<Sort>(Sort.MostRecent);
 
+  useEffect(() => {
+    getBooks({ genre, sort }).then((books) => {
+      setMatches(books);
+    });
+  }, [genre, sort]);
+
   const [readList, setReadList] = useState<Set<Book["ISBN"]>>(new Set());
   const handleBookClick = (book: Book["ISBN"]) => {
     // const draft = readList.includes(book)
@@ -45,12 +51,6 @@ function HomePageClient({ books, genres }: Props) {
 
     localStorage.setItem("readList", JSON.stringify(Array.from(draft)));
   };
-
-  useEffect(() => {
-    getBooks({ genre, sort }).then((books) => {
-      setMatches(books);
-    });
-  }, [genre, sort]);
 
   useEffect(() => {
     function getReadList() {

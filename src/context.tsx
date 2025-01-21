@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, use, useCallback, useEffect, useState } from "react";
 import { addPoints, getUser, redeem } from "./api";
 import { Book, User } from "./types";
 
@@ -19,22 +13,18 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>();
 
   useEffect(() => {
-    getUser().then((user) => {
-      setUser(user);
-    });
+    getUser().then((x) => setUser(x));
   }, []);
 
   return (
-    <UserStateContext.Provider value={user}>
-      <UserUpdaterContext.Provider value={setUser}>
-        {children}
-      </UserUpdaterContext.Provider>
-    </UserStateContext.Provider>
+    <UserStateContext value={user}>
+      <UserUpdaterContext value={setUser}>{children}</UserUpdaterContext>
+    </UserStateContext>
   );
 }
 
 export function useUserState() {
-  const user = useContext(UserStateContext);
+  const user = use(UserStateContext);
   if (user === null) {
     throw new Error("useUserState must be used within a UserProvider");
   }
@@ -42,7 +32,7 @@ export function useUserState() {
 }
 
 export function useUserUpdater() {
-  const setUser = useContext(UserUpdaterContext);
+  const setUser = use(UserUpdaterContext);
 
   if (setUser === undefined) {
     throw new Error("useUserUpdater must be used within a UserProvider");
