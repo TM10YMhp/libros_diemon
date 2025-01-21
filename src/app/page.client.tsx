@@ -10,13 +10,17 @@ import { Book, Sort } from "@/types";
 import { cx, launchConfetti } from "@/utils";
 import { useEffect, useState } from "react";
 
-interface Props {
+export const HomePageClientDynamic = dynamic(async () => HomePageClient, {
+  ssr: false,
+  loading: Loading,
+});
+
+type Props = {
   books: Book[];
   genres: string[];
-}
+};
 
-/* eslint-disable @next/next/no-img-element */
-function HomePageClient({ books, genres }: Props) {
+export function HomePageClient({ books, genres }: Props) {
   const scrollPosition = useScrollPosition();
 
   useDynamicTitle("¡No te vayas😭! 🗣");
@@ -87,6 +91,7 @@ function HomePageClient({ books, genres }: Props) {
     });
   };
 
+  /* eslint-disable @next/next/no-img-element */
   return (
     <article className="grid gap-4">
       <div
@@ -170,8 +175,3 @@ function HomePageClient({ books, genres }: Props) {
     </article>
   );
 }
-
-export default dynamic(async () => HomePageClient, {
-  ssr: false,
-  loading: Loading,
-});

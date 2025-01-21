@@ -3,7 +3,7 @@ import { addPoints, getUser, redeem } from "./api";
 import { Book, User } from "./types";
 
 // https://kentcdodds.com/blog/how-to-optimize-your-context-value
-
+// https://youtu.be/UUW4xS05Y6s?si=4xyq7vyX9gbZPqqq
 const UserStateContext = createContext<User | undefined | null>(null);
 const UserUpdaterContext = createContext<
   React.Dispatch<React.SetStateAction<User | undefined>>

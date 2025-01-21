@@ -53,3 +53,7 @@ export const launchConfetti = (element: Element, options: confetti.Options) => {
     });
   });
 };
+
+export const delay = (delay: number) => {
+  return new Promise((resolve) => setTimeout(resolve, delay));
+};

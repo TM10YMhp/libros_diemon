@@ -1,9 +1,9 @@
 import { getBooks, getGenres } from "@/api";
-import HomeClientPage from "./page.client";
+import { HomePageClient } from "./page.client";
 
 export default async function HomePage() {
   const books = await getBooks();
   const genres = await getGenres();
 
-  return <HomeClientPage books={books} genres={genres} />;
+  return <HomePageClient books={books} genres={genres} />;
 }

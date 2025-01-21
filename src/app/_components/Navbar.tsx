@@ -3,7 +3,6 @@ import { page_metadata } from "@/config";
 import { useUserState, useUserUpdater } from "@/context";
 import { cx, launchConfetti } from "@/utils";
 
-/* eslint-disable @next/next/no-img-element */
 export default function Navbar() {
   const { user } = useUserState();
   const { addPoints } = useUserUpdater();
@@ -21,6 +20,7 @@ export default function Navbar() {
     });
   };
 
+  /* eslint-disable @next/next/no-img-element */
   return (
     <nav className="flex items-center gap-8">
       <p className="text-2xl">{String(page_metadata.title)}</p>
