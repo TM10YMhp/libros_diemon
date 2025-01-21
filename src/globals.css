@@ -8,6 +8,8 @@
 /*   color-scheme: dark light; */
 /* } */
 
-:root {
-  @apply bg-stone-900 text-white;
+@layer components {
+  .btn {
+    @apply font-normal min-h-0 h-10;
+  }
 }

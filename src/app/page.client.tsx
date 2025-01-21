@@ -5,6 +5,8 @@ import Loading from "./loading";
 
 import { getBooks } from "@/api";
 import { useUserState, useUserUpdater } from "@/context";
+import { useCartUpdater } from "@/features/cart";
+import { Drawer } from "@/features/ui/components/Drawer";
 import { useDynamicTitle, useScrollPosition } from "@/hooks";
 import { Book, Sort } from "@/types";
 import { cx, launchConfetti } from "@/utils";
@@ -27,6 +29,8 @@ export function HomePageClient({ books, genres }: Props) {
 
   const { user } = useUserState();
   const { redeem } = useUserUpdater();
+
+  const { addItem } = useCartUpdater();
 
   const [matches, setMatches] = useState<Book[]>([]);
   const [genre, setGenre] = useState("");
@@ -82,6 +86,14 @@ export function HomePageClient({ books, genres }: Props) {
 
     redeem(book);
 
+    addItem({
+      id: book.ISBN,
+      title: book.title,
+      description: book.synopsis,
+      image: book.cover,
+      price: book.pages,
+    });
+
     launchConfetti(event.currentTarget, {
       colors: ["#bb0000", "#ffffff"],
       particleCount: 8,
@@ -105,7 +117,7 @@ export function HomePageClient({ books, genres }: Props) {
         <div className="flex flex-row gap-2">
           <p>filtrar por genero:</p>
           <select
-            className="border rounded-md h-full bg-stone-900 w-32"
+            className="border rounded-md h-full w-32"
             value={genre}
             onChange={(e) => setGenre(e.target.value)}
           >
@@ -121,7 +133,7 @@ export function HomePageClient({ books, genres }: Props) {
           <p>ordenar:</p>
 
           <select
-            className="border rounded-md h-full bg-stone-900 w-32"
+            className="border rounded-md h-full w-32"
             value={sort}
             onChange={(e) => setSort(e.target.value as Sort)}
           >
@@ -145,7 +157,7 @@ export function HomePageClient({ books, genres }: Props) {
           >
             <button
               className={cx(
-                "absolute px-1 rounded-br-lg bg-stone-900 border select-none",
+                "absolute px-1 rounded-br-lg bg-base-100 border select-none",
                 "hover:bg-stone-600 flex flex-row gap-1 items-center",
                 book.pages <= Number(user?.points) ||
                   "!bg-red-900 hover:!bg-red-600",
@@ -172,6 +184,7 @@ export function HomePageClient({ books, genres }: Props) {
           </li>
         ))}
       </ul>
+      <Drawer />
     </article>
   );
 }

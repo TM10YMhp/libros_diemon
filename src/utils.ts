@@ -47,7 +47,7 @@ export const launchConfetti = (element: Element, options: confetti.Options) => {
 
   import("canvas-confetti").then(({ default: confetti }) => {
     confetti({
-      zIndex: 10,
+      zIndex: -10,
       origin: { x, y },
       ...options,
     });

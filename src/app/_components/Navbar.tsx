@@ -26,8 +26,8 @@ export default function Navbar() {
       <p className="text-2xl">{String(page_metadata.title)}</p>
       <div
         className={cx(
-          "cursor-pointer select-none bg-stone-900 p-1",
-          "border rounded-full flex flex-row gap-1 z-20",
+          "cursor-pointer select-none bg-base-100 p-1",
+          "border rounded-full flex flex-row gap-1",
         )}
         onClick={handleClick}
       >
