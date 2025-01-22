@@ -4,6 +4,39 @@ import { useCartState, useCartUpdater } from "@/features/cart/context";
 
 /* eslint-disable @next/next/no-img-element */
 
+const WhatsAppIcon = (
+  props: React.DetailedHTMLProps<
+    React.ImgHTMLAttributes<HTMLImageElement>,
+    HTMLImageElement
+  >,
+) => {
+  return (
+    <img
+      loading="lazy"
+      src={"https://icongr.am/material/whatsapp.svg?color=ffffff"}
+      alt="whatsapp"
+      {...props}
+    />
+  );
+};
+
+const MemeCoinIcon = (
+  props: React.DetailedHTMLProps<
+    React.ImgHTMLAttributes<HTMLImageElement>,
+    HTMLImageElement
+  >,
+) => {
+  return (
+    <img
+      loading="lazy"
+      className="inline"
+      src="https://cryptologos.cc/logos/dogebonk-dobo-logo.svg?v=040"
+      alt="memecoin"
+      {...props}
+    />
+  );
+};
+
 const parseCurrency = (value: number): string => {
   return value.toLocaleString("es-PE", {
     style: "currency",
@@ -58,20 +91,10 @@ function DrawerContent() {
         ))}
       </div>
       <button className="btn btn-primary h-10 text-white">
-        <img
-          loading="lazy"
-          src={"https://icongr.am/material/whatsapp.svg?color=ffffff"}
-          style={{ width: "28px" }}
-          alt=""
-        />
+        <WhatsAppIcon width="28" />
         <span className="flex flex-row gap-1 items-center">
           {quantity} {quantity === 1 ? "producto" : "productos"} (total:
-          <img
-            className="inline"
-            src="https://cryptologos.cc/logos/dogebonk-dobo-logo.svg?v=040"
-            alt="memecoin"
-            width={22}
-          />
+          <MemeCoinIcon width="22" />
           {total})
         </span>
       </button>
@@ -96,21 +119,10 @@ export function Drawer() {
               "shadow-lg shadow-zinc-900",
             ].join(" ")}
           >
-            <img
-              loading="lazy"
-              src="https://icongr.am/material/whatsapp.svg?color=ffffff"
-              width="28"
-              alt="whatsapp icon"
-            />
+            <WhatsAppIcon width="28" />
             <span className="flex flex-row gap-1 items-center">
-              {quantity} {quantity === 1 ? "producto" : "productos"} (total:
-              <img
-                className="inline"
-                src="https://cryptologos.cc/logos/dogebonk-dobo-logo.svg?v=040"
-                alt="memecoin"
-                width={22}
-              />
-              {total})
+              {quantity} {quantity === 1 ? "producto" : "productos"} (total:{" "}
+              <MemeCoinIcon width="22" /> {total})
             </span>
           </label>
         </div>
