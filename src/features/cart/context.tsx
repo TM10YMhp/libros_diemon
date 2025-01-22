@@ -1,66 +1,16 @@
+import { Provider, atom, useAtomValue, useSetAtom } from "jotai";
 import type { CartItem, Product } from "./types";
 
-import {
-  type ReactNode,
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useMemo } from "react";
 
-const editCart = (
-  cart: CartItem[],
-  product: Product,
-  action: "increment" | "decrement",
-): CartItem[] => {
-  const mapCart = new Map(cart.map((item) => [item.id, item]));
+const cartAtom = atom<CartItem[]>([]);
 
-  const item = mapCart.get(product.id);
-
-  if (item === undefined) {
-    return cart.concat({ ...product, quantity: 1 });
-  }
-
-  if (action === "decrement") {
-    if (item.quantity === 1) {
-      mapCart.delete(item.id);
-    } else {
-      mapCart.set(item.id, { ...item, quantity: item.quantity - 1 });
-    }
-  } else if (action === "increment") {
-    mapCart.set(item.id, { ...item, quantity: item.quantity + 1 });
-  }
-
-  return Array.from(mapCart.values());
-};
-
-type TCardContext = {
-  cart?: CartItem[];
-  setCart?: React.Dispatch<React.SetStateAction<CartItem[]>>;
-};
-
-const CartStateContext = createContext<TCardContext["cart"]>(undefined);
-const CartUpdaterContext = createContext<TCardContext["setCart"]>(undefined);
-
-function CartProvider({ children }: { children: ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>([]);
-
-  return (
-    <CartStateContext.Provider value={cart}>
-      <CartUpdaterContext.Provider value={setCart}>
-        {children}
-      </CartUpdaterContext.Provider>
-    </CartStateContext.Provider>
-  );
+export function CartProvider({ children }: { children: React.ReactNode }) {
+  return <Provider>{children}</Provider>;
 }
 
-function useCartState() {
-  const cart = useContext(CartStateContext);
-
-  if (cart === undefined) {
-    throw new Error("useCartState must be used within a CartProvider");
-  }
+export function useCartState() {
+  const cart = useAtomValue(cartAtom);
 
   const { total, quantity } = useMemo(
     () =>
@@ -79,12 +29,37 @@ function useCartState() {
   return { cart, total, quantity };
 }
 
-function useCartUpdater() {
-  const setCart = useContext(CartUpdaterContext);
+export function useCartUpdater() {
+  const setCart = useSetAtom(cartAtom);
 
-  if (setCart === undefined) {
-    throw new Error("useCartUpdater must be used within a CartProvider");
-  }
+  const editCart = (
+    cart: CartItem[],
+    product: Product,
+    action: "increment" | "decrement",
+  ): CartItem[] => {
+    const mapCart = new Map(cart.map((item) => [item.id, item]));
+
+    const item = mapCart.get(product.id);
+
+    if (item === undefined) {
+      return cart.concat({ ...product, quantity: 1 });
+    }
+
+    switch (action) {
+      case "increment":
+        mapCart.set(item.id, { ...item, quantity: item.quantity + 1 });
+        break;
+      case "decrement":
+        if (item.quantity === 1) {
+          mapCart.delete(item.id);
+        } else {
+          mapCart.set(item.id, { ...item, quantity: item.quantity - 1 });
+        }
+        break;
+    }
+
+    return Array.from(mapCart.values());
+  };
 
   const addItem = useCallback((value: Product) => {
     setCart((cart) => editCart(cart, value, "increment"));
@@ -98,5 +73,3 @@ function useCartUpdater() {
 
   return { addItem, removeItem };
 }
-
-export { CartProvider, useCartState, useCartUpdater };

@@ -10,6 +10,6 @@
 
 @layer components {
   .btn {
-    @apply font-normal min-h-0 h-10;
+    @apply font-normal min-h-0;
   }
 }

@@ -57,7 +57,7 @@ function DrawerContent() {
           </div>
         ))}
       </div>
-      <button className="btn btn-primary text-white">
+      <button className="btn btn-primary h-10 text-white">
         <img
           loading="lazy"
           src={"https://icongr.am/material/whatsapp.svg?color=ffffff"}
@@ -87,12 +87,12 @@ export function Drawer() {
     <div className="drawer drawer-end sticky bottom-0">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       {quantity > 0 && (
-        <div className="drawer-content pb-4 mx-auto">
+        <div className="drawer-content pb-5 mx-auto">
           <label
             htmlFor="my-drawer"
             className={[
               "drawer-button",
-              "btn btn-primary text-white",
+              "btn btn-primary text-white h-10",
               "shadow-lg shadow-zinc-900",
             ].join(" ")}
           >
